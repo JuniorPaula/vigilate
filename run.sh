@@ -4,8 +4,8 @@
 # run ./vigilate -help
 
 go build -o vigilate cmd/web/*.go && ./vigilate \
--dbuser='someuser' \
--pusherHost='pusher.com' \
+-dbuser='postgres' \
+-pusherHost='localhost' \
 -pusherKey='abc123' \
 -pusherSecret='123abc' \
 -pusherApp="1"
