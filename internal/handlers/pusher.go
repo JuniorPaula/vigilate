@@ -33,3 +33,13 @@ func (repo *DBRepo) PusherAuth(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(response)
 }
+
+func (repo *DBRepo) PusherTest(w http.ResponseWriter, r *http.Request) {
+	data := make(map[string]string)
+	data["message"] = "hello from the server"
+
+	err := repo.App.WsClient.Trigger("public-channel", "test-event", data)
+	if err != nil {
+		log.Println(err)
+	}
+}
