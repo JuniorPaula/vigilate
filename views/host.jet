@@ -26,6 +26,117 @@ Host
         <hr>
     </div>
 </div>
+
+<div class="row">
+    <div class="col">
+        <form method="post" action="/admin/host/0" novalidate class="needs-validation" id="host-form">
+            <ul class="nav nav-tabs" id="host-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#host-content" data-target="" data-toggle="tab"
+                    id="host-tab" role="tab">Host</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#service-content" data-target="" data-toggle="tab"
+                    id="service-tab" role="tab">Manage Services</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#healthy-content" data-target="" data-toggle="tab"
+                    id="healthy-tab" role="tab">Healthy</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#warning-content" data-target="" data-toggle="tab"
+                    id="warning-tab" role="tab">Warning</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#problem-content" data-target="" data-toggle="tab"
+                    id="problem-tab" role="tab">Problems</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#pending-content" data-target="" data-toggle="tab"
+                    id="pending-tab" role="tab">pending</a>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="host-tab-content" style="min-height: 55vh">
+                <div class="tab-pane fade show active" role="tabpanel" aria-labelledby="content-tab" id="host-content">
+                    <div class="row">
+                        <div class="col-md-6 col-xs-12">
+                            <div class="my-3">
+                                <label for="host_name" class="form-label">Host Name</label>
+                                <input type="text" name="host_name" id="host_name" value="" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="canonical_name" class="form-label">Canonical Name</label>
+                                <input type="text" name="canonical_name" id="canonical_name" value="" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="url" class="form-label">URL</label>
+                                <input type="text" name="url" id="url" value="" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="ip" class="form-label">IP Address (v4)</label>
+                                <input type="text" name="ip" id="ip" value="" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="ipv6" class="form-label">IP Address (v6)</label>
+                                <input type="text" name="ipv6" id="ipv6" value="" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-xs-12">
+                            <div class="my-3">
+                                <label for="location" class="form-label">Location</label>
+                                <input type="text" name="location" id="location" value="" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="os" class="form-label">Operator System</label>
+                                <input type="text" name="os" id="os" value="" class="form-control">
+                            </div>
+                            <div class="form-check form-switch">
+                                <label for="active" class="form-check-label">Active</label>
+                                <input type="checkbox" class="form-check-input" id="active" name="active">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <hr>
+                            <div class="btn-group dropend">
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false">
+                                    Save
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="javascript:void(0);" onclick="saveClose()">Save &amp;
+                                        Close</a>
+                                    <a class="dropdown-item" href="javascript:void(0);" onclick="val()">Save &amp; Continue</a>
+                                </div>
+                            </div>
+        
+                            <a class="btn btn-info" href="/admin/host/all">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" role="tabpanel" aria-labelledby="service-tab" id="service-content">
+                    Services
+                </div>
+                <div class="tab-pane fade" role="tabpanel" aria-labelledby="healthy-tab" id="healthy-content">
+                    Healthy
+                </div>
+                <div class="tab-pane fade" role="tabpanel" aria-labelledby="warning-tab" id="warning-content">
+                    Warning
+                </div>
+                <div class="tab-pane fade" role="tabpanel" aria-labelledby="problem-tab" id="problem-content">
+                    Problem
+                </div>
+                <div class="tab-pane fade" role="tabpanel" aria-labelledby="pending-tab" id="pending-content">
+                    Pending
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 {{end}}
 
 
