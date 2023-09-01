@@ -132,7 +132,13 @@ func (repo *DBRepo) Host(w http.ResponseWriter, r *http.Request) {
 
 	var h models.Host
 	if id > 0 {
-		// get the host from the database
+		host, err := repo.DB.GetHostByID(id)
+		if err != nil {
+			log.Println(err)
+			ClientError(w, r, http.StatusBadRequest)
+			return
+		}
+		h = host
 	}
 
 	vars := make(jet.VarMap)
