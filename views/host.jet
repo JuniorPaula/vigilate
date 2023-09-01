@@ -30,6 +30,9 @@ Host
 <div class="row">
     <div class="col">
         <form method="post" action="/admin/host/0" novalidate class="needs-validation" id="host-form">
+            <input type="hidden" name="action" id="action" value="1">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+
             <ul class="nav nav-tabs" id="host-tabs">
                 <li class="nav-item">
                     <a class="nav-link active" href="#host-content" data-target="" data-toggle="tab"
@@ -63,15 +66,15 @@ Host
                         <div class="col-md-6 col-xs-12">
                             <div class="my-3">
                                 <label for="host_name" class="form-label">Host Name</label>
-                                <input type="text" name="host_name" id="host_name" value="" class="form-control">
+                                <input type="text" required name="host_name" id="host_name" value="" class="form-control">
                             </div>
                             <div class="mb-3">
                                 <label for="canonical_name" class="form-label">Canonical Name</label>
-                                <input type="text" name="canonical_name" id="canonical_name" value="" class="form-control">
+                                <input type="text" required name="canonical_name" id="canonical_name" value="" class="form-control">
                             </div>
                             <div class="mb-3">
                                 <label for="url" class="form-label">URL</label>
-                                <input type="text" name="url" id="url" value="" class="form-control">
+                                <input type="text" required name="url" id="url" value="" class="form-control">
                             </div>
                             <div class="mb-3">
                                 <label for="ip" class="form-label">IP Address (v4)</label>
@@ -141,5 +144,37 @@ Host
 
 
 {{ block js() }}
+<script>
+        function val() {
+            document.getElementById("action").value = 0;
+            let form = document.getElementById("host-form");
+            if (form.checkValidity() === false) {
+                errorAlert("Error: check all tabs!");
+                this.event.preventDefault();
+                this.event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+
+            if (form.checkValidity() === true) {
+                form.submit();
+            }
+        }
+
+        function saveClose() {
+            document.getElementById("action").value = 1;
+            let form = document.getElementById("host-form");
+            if (form.checkValidity() === false) {
+                errorAlert("Error: check all tabs!");
+                this.event.preventDefault();
+                this.event.stopPropagation();
+
+            }
+            form.classList.add('was-validated');
+
+            if (form.checkValidity() === true) {
+                form.submit();
+            }
+        }
+</script>
 
 {{end}}
