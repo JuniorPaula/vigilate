@@ -189,7 +189,7 @@ Host
             toggles[i].addEventListener("change", function() {
                 
                 let active = "1";
-                if(this.checked) {
+                if(!this.checked) {
                     active = "0";
                 }
 
@@ -205,7 +205,11 @@ Host
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log('data', data);
+                    if (data.ok) {
+                        successAlert("Service updated!");
+                    } else {
+                        errorAlert("Error to update service!");
+                    }
                 })
             })
         }
