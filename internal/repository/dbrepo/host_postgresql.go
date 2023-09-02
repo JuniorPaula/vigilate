@@ -269,3 +269,58 @@ func (m *postgresDBRepo) GetAllServiceStatusCount() (int, int, int, int, error) 
 
 	return pending, healthy, warning, problem, nil
 }
+
+// GetServicesByStatus gets all services by status
+func (m *postgresDBRepo) GetServicesByStatus(status string) ([]models.HostService, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `
+		select
+			hs.id, hs.host_id, hs.service_id, hs.active, hs.schedule_number, hs.schedule_unit, hs.last_check, hs.status, hs.created_at, hs.updated_at, h.host_name, s.service_name
+		from
+			host_services hs
+			left join hosts h on (hs.host_id = h.id)
+			left join services s on (hs.service_id = s.id)
+		where
+			status = $1
+			and hs.active = 1
+		order by
+			h.host_name, s.service_name
+	`
+	var hostServices []models.HostService
+
+	rows, err := m.DB.QueryContext(ctx, query, status)
+	if err != nil {
+		return hostServices, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var h models.HostService
+		err = rows.Scan(
+			&h.ID,
+			&h.HostID,
+			&h.ServiceID,
+			&h.Active,
+			&h.ScheduleNumber,
+			&h.ScheduleUnit,
+			&h.LastCheck,
+			&h.Status,
+			&h.CreatedAt,
+			&h.UpdatedAt,
+			&h.Hostname,
+			&h.Service.ServiceName,
+		)
+		if err != nil {
+			return nil, err
+		}
+		hostServices = append(hostServices, h)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return hostServices, nil
+}
