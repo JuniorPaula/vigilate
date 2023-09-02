@@ -45,7 +45,7 @@ func NewPostgresqlHandlers(db *driver.DB, a *config.AppConfig) *DBRepo {
 // AdminDashboard displays the dashboard
 func (repo *DBRepo) AdminDashboard(w http.ResponseWriter, r *http.Request) {
 	// get all service status counts
-	healthy, problem, pending, warning, err := repo.DB.GetAllServiceStatusCount()
+	pending, healthy, warning, problem, err := repo.DB.GetAllServiceStatusCount()
 	if err != nil {
 		log.Println(err)
 		ClientError(w, r, http.StatusInternalServerError)
