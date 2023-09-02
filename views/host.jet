@@ -137,23 +137,27 @@ Host
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>HTTP</td>
-                                            <td>
-                                                <div class="form-check form-switch">
-                                                    <label for="active" class="form-check-label">Active</label>
-                                                    <input 
-                                                        type="checkbox" 
-                                                        class="form-check-input" 
-                                                        id="http_service" 
-                                                        value="1" 
-                                                        name="http"
-                                                        data-type="toggle-service" 
-                                                        data-service="1" 
-                                                        data-host-id="{{host.ID}}">
-                                                </div>
-                                            </td>
-                                        </tr>
+
+                                        {{range host.HostServices}}
+                                            <tr>
+                                                <td>{{.Service.ServiceName}}</td>
+                                                <td>
+                                                    <div class="form-check form-switch">
+                                                        <label for="active" class="form-check-label">Active</label>
+                                                        <input 
+                                                            type="checkbox" 
+                                                            class="form-check-input"
+                                                            value="1"
+                                                            {{if .Active == 1}} checked {{end}}
+                                                            name="{{.Service.ServiceName}}"
+                                                            data-type="toggle-service" 
+                                                            data-service="{{.ServiceID}}" 
+                                                            data-host-id="{{.HostID}}">
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {{end}}
+
                                     </tbody>
                                 </table>
                             </div>
