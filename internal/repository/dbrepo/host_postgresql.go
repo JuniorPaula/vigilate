@@ -246,3 +246,26 @@ func (m *postgresDBRepo) UpdateHostServiceStatus(hostID, serviceID, active int) 
 
 	return nil
 }
+
+// GetHostServiceStatus gets the status of a host service
+func (m *postgresDBRepo) GetAllServiceStatusCount() (int, int, int, int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `
+	select	
+	 (select count(id) from host_services where active = 1 and status = 'pending') as pending,
+	 (select count(id) from host_services where active = 1 and status = 'healthy') as healthy,
+	 (select count(id) from host_services where active = 1 and status = 'warning') as warning,
+	 (select count(id) from host_services where active = 1 and status = 'problem') as problem
+	`
+	var pending, healthy, warning, problem int
+
+	row := m.DB.QueryRowContext(ctx, query)
+	err := row.Scan(&pending, &healthy, &warning, &problem)
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+
+	return pending, healthy, warning, problem, nil
+}
