@@ -180,6 +180,47 @@ func (m *postgresDBRepo) AllHosts() ([]*models.Host, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		serviceQuery := `select hs.id, hs.host_id, hs.service_id, hs.active, hs.schedule_number, hs.schedule_unit, hs.status, hs.created_at, hs.updated_at, s.id, s.service_name, s.icon, s.created_at, s.updated_at from host_services hs left join services s on (hs.service_id = s.id) where hs.host_id = $1 order by s.service_name`
+
+		serviceRows, err := m.DB.QueryContext(ctx, serviceQuery, h.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		var hostServices []models.HostService
+
+		for serviceRows.Next() {
+			var hs models.HostService
+			err = serviceRows.Scan(
+				&hs.ID,
+				&hs.HostID,
+				&hs.ServiceID,
+				&hs.Active,
+				&hs.ScheduleNumber,
+				&hs.ScheduleUnit,
+				&hs.Status,
+				&hs.CreatedAt,
+				&hs.UpdatedAt,
+				&hs.Service.ID,
+				&hs.Service.ServiceName,
+				&hs.Service.Icon,
+				&hs.Service.CreatedAt,
+				&hs.Service.UpdatedAt,
+			)
+			if err != nil {
+				return nil, err
+			}
+			hostServices = append(hostServices, hs)
+			serviceRows.Close()
+		}
+
+		if err = serviceRows.Err(); err != nil {
+			return nil, err
+		}
+
+		h.HostServices = hostServices
+
 		hosts = append(hosts, &h)
 	}
 
