@@ -65,6 +65,8 @@ func routes() http.Handler {
 		mux.Get("/host/{id}", handlers.Repo.Host)
 		mux.Post("/host/{id}", handlers.Repo.PostHost)
 		mux.Post("/host/toggle-service", handlers.Repo.ToggleServiceForHost)
+
+		mux.Get("/perform-check/{id}/{oldstatus}", handlers.Repo.PerformCheck)
 	})
 
 	// static files

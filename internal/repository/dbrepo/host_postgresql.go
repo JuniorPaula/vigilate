@@ -76,7 +76,7 @@ func (m *postgresDBRepo) GetHostByID(id int) (models.Host, error) {
 	}
 
 	// get all service for host
-	query = `select hs.id, hs.host_id, hs.service_id, hs.active, hs.schedule_number, hs.schedule_unit, hs.status, hs.created_at, hs.updated_at, s.id, s.service_name, s.icon, s.created_at, s.updated_at from host_services hs left join services s on (hs.service_id = s.id) where hs.host_id = $1 order by s.service_name`
+	query = `select hs.id, hs.host_id, hs.service_id, hs.active, hs.schedule_number, hs.schedule_unit, hs.last_check, hs.status, hs.created_at, hs.updated_at, s.id, s.service_name, s.icon, s.created_at, s.updated_at from host_services hs left join services s on (hs.service_id = s.id) where hs.host_id = $1 order by s.service_name`
 
 	rows, err := m.DB.QueryContext(ctx, query, id)
 	if err != nil {
@@ -95,6 +95,7 @@ func (m *postgresDBRepo) GetHostByID(id int) (models.Host, error) {
 			&hs.Active,
 			&hs.ScheduleNumber,
 			&hs.ScheduleUnit,
+			&hs.LastCheck,
 			&hs.Status,
 			&hs.CreatedAt,
 			&hs.UpdatedAt,
@@ -247,6 +248,37 @@ func (m *postgresDBRepo) UpdateHostServiceStatus(hostID, serviceID, active int) 
 	return nil
 }
 
+// UpdateHostServiceStatus updates the status of a host service
+func (m *postgresDBRepo) UpdateHostService(hs models.HostService) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	stmt := `update 
+				host_services set
+				    host_id = $1, service_id = $2, active = $3, schedule_number = $4, schedule_unit = $5, last_check = $6, status = $7, updated_at = $8
+				where
+					id = $9`
+
+	_, err := m.DB.ExecContext(ctx, stmt,
+		hs.HostID,
+		hs.ServiceID,
+		hs.Active,
+		hs.ScheduleNumber,
+		hs.ScheduleUnit,
+		hs.LastCheck,
+		hs.Status,
+		time.Now(),
+		hs.ID,
+	)
+
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}
+
 // GetHostServiceStatus gets the status of a host service
 func (m *postgresDBRepo) GetAllServiceStatusCount() (int, int, int, int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -323,4 +355,46 @@ func (m *postgresDBRepo) GetServicesByStatus(status string) ([]models.HostServic
 	}
 
 	return hostServices, nil
+}
+
+// GetHostServiceByID gets a host service by id
+func (m *postgresDBRepo) GetHostServiceByID(id int) (models.HostService, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `
+		select 
+			hs.id, hs.host_id, hs.service_id, hs.active, hs.schedule_number, hs.schedule_unit, hs.last_check, hs.status, hs.created_at, hs.updated_at, s.id, s.service_name, s.icon, s.created_at, s.updated_at
+		from host_services hs 
+		left join services s on (hs.service_id = s.id)
+		where hs.id = $1`
+
+	var hs models.HostService
+
+	row := m.DB.QueryRowContext(ctx, query, id)
+
+	err := row.Scan(
+		&hs.ID,
+		&hs.HostID,
+		&hs.ServiceID,
+		&hs.Active,
+		&hs.ScheduleNumber,
+		&hs.ScheduleUnit,
+		&hs.LastCheck,
+		&hs.Status,
+		&hs.CreatedAt,
+		&hs.UpdatedAt,
+		&hs.Service.ID,
+		&hs.Service.ServiceName,
+		&hs.Service.Icon,
+		&hs.Service.CreatedAt,
+		&hs.Service.UpdatedAt,
+	)
+
+	if err != nil {
+		log.Println(err)
+		return hs, err
+	}
+
+	return hs, nil
 }

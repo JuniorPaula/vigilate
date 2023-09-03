@@ -182,12 +182,19 @@ Host
                                             {{if .Status == "healthy"}}
                                                 <tr>
                                                     <td>
+                                                        <span class="{{.Service.Icon}}"></span>
                                                         {{.Service.ServiceName}}
-                                                        <span class="badge bg-info ml-2" style="cursor: pointer;" onclick="checkNow('{{.ID}}')">
+                                                        <span class="badge bg-info ml-2" style="cursor: pointer;" onclick="checkNow('{{.ID}}', 'healthy')">
                                                             Check now
                                                         </span>
                                                     </td>
-                                                    <td>{{.LastCheck}}</td>
+                                                    <td>
+                                                        {{if dateAfterYearOne(.LastCheck)}}
+                                                            {{dateFromLayout(.LastCheck, "2006-01-02 15:04:05")}}
+                                                        {{else}}
+                                                            Healthy...
+                                                        {{end}}
+                                                    </td>
                                                     <td></td>
                                                 <tr>
                                             {{else}}
@@ -220,12 +227,19 @@ Host
                                             {{if .Status == "warning"}}
                                                 <tr>
                                                     <td>
+                                                        <span class="{{.Service.Icon}}"></span>
                                                         {{.Service.ServiceName}}
-                                                        <span class="badge bg-info ml-2" style="cursor: pointer;" onclick="checkNow('{{.ID}}')">
+                                                        <span class="badge bg-info ml-2" style="cursor: pointer;" onclick="checkNow('{{.ID}}', 'warning')">
                                                             Check now
                                                         </span>
                                                     </td>
-                                                    <td>{{.LastCheck}}</td>
+                                                    <td>
+                                                        {{if dateAfterYearOne(.LastCheck)}}
+                                                            {{dateFromLayout(.LastCheck, "2006-01-02 15:04:05")}}
+                                                        {{else}}
+                                                            Warning...
+                                                        {{end}}
+                                                    </td>
                                                     <td></td>
                                                 <tr>
                                             {{else}}
@@ -258,12 +272,19 @@ Host
                                             {{if .Status == "problem"}}
                                                 <tr>
                                                     <td>
+                                                        <span class="{{.Service.Icon}}"></span>
                                                         {{.Service.ServiceName}}
-                                                        <span class="badge bg-info ml-2" style="cursor: pointer;" onclick="checkNow('{{.ID}}')">
+                                                        <span class="badge bg-info ml-2" style="cursor: pointer;" onclick="checkNow('{{.ID}}', 'problem')">
                                                             Check now
                                                         </span>
                                                     </td>
-                                                    <td>{{.LastCheck}}</td>
+                                                    <td>
+                                                        {{if dateAfterYearOne(.LastCheck)}}
+                                                            {{dateFromLayout(.LastCheck, "2006-01-02 15:04:05")}}
+                                                        {{else}}
+                                                            Problem...
+                                                        {{end}}
+                                                    </td>
                                                     <td></td>
                                                 <tr>
                                             {{else}}
@@ -298,7 +319,7 @@ Host
                                                     <td>
                                                         <span class="{{.Service.Icon}}"></span>
                                                         {{.Service.ServiceName}}
-                                                        <span class="badge bg-info ml-2" style="cursor: pointer;" onclick="checkNow('{{.ID}}')">
+                                                        <span class="badge bg-info ml-2" style="cursor: pointer;" onclick="checkNow('{{.ID}}', 'pending')">
                                                             Check now
                                                         </span>
                                                     </td>
@@ -397,8 +418,33 @@ Host
         }
     }
 
-    function checkNow(id) {
-        console.log("check now: ", id)
+    function checkNow(id, oldStatus) {
+        fetch(`/admin/perform-check/${id}/${oldStatus}`, {
+            method: "GET",
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.ok) {
+                if (data.old_status !== data.new_status) {
+                    attention.toast({
+                        msg: data.message,
+                        icon: "info",
+                        timer: 60000,
+                        showCloseButton: true,
+                    });
+                } else {
+                    attention.toast({
+                        msg: `Service is still in ${data.new_status} state!`,
+                        icon: "info",
+                        timer: 5000,
+                        showCloseButton: true,
+                    });
+                }
+                
+            } else {
+                errorAlert("Error to perform check!");
+            }
+        })
     }
 </script>
 
