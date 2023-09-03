@@ -35,16 +35,24 @@
                 </tr>
                 </thead>
                 <tbody>
-                    {{range services}}
+                    {{if len(services) > 0}}}
+                    
+                        {{range services}}
+                            <tr>
+                                <td>
+                                    <a href="/admin/host/{{.HostID}}#pending-content">{{.Hostname}}</a>
+                                </td>
+                                <td>{{.Service.ServiceName}}</td>
+                                <td>
+                                    <span class="badge bg-secondary">{{.Status}}</span>
+                                </td>
+                                <td>No Messsage</td>
+                            </tr>
+                        {{end}}
+
+                    {{else}}
                         <tr>
-                            <td>
-                              <a href="/admin/host/{{.HostID}}#pending-content">{{.Hostname}}</a>
-                            </td>
-                            <td>{{.Service.ServiceName}}</td>
-                            <td>
-                                <span class="badge bg-secondary">{{.Status}}</span>
-                            </td>
-                            <td>No Messsage</td>
+                            <td colspan="4" class="text-center">No Pending Services</td>
                         </tr>
                     {{end}}
                 </tbody>
