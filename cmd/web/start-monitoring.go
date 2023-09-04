@@ -1,23 +1,39 @@
 package main
 
+import "log"
+
 type job struct {
 	HostServiceID int
 }
 
 func (j *job) Run() {
-
+	repo.ScheduledCheck(j.HostServiceID)
 }
 
+// startMonitoring starts the monitoring of the services
 func startMonitoring() {
 	if preferenceMap["monitoring_live"] == "1" {
+		log.Println("**************** Monitoring is already running ****************")
 		data := make(map[string]string)
-		data["message"] = "starting"
+		data["message"] = "Monitoring is starting..."
 
-		// TODO trigger a message to broadcast to all clients that app is starting to monitor
+		err := app.WsClient.Trigger("public-channel", "app-starting", data)
+		if err != nil {
+			log.Println(err)
+		}
 
 		// get all of the services that are being monitored
+		servicesToMonitor, err := repo.DB.GetServicesToMonitor()
+		if err != nil {
+			log.Println(err)
+		}
+
+		log.Println("Length of services to monitor", len(servicesToMonitor))
 
 		// range trhough the services and create a job for each one
+		for _, service := range servicesToMonitor {
+			log.Println("***** Service to monitor on", service.Hostname, "is", service.Service.ServiceName, "*****")
+		}
 
 		// get the schedule unit number
 
