@@ -15,7 +15,7 @@ import (
 	"vigilate/internal/repository/dbrepo"
 
 	"github.com/CloudyKit/jet/v6"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 )
 
 // Repo is the repository

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"vigilate/internal/handlers"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 )
 
 func routes() http.Handler {
