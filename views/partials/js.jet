@@ -101,6 +101,21 @@
     }
 
     function toggleMonitoring(enabled) {
+        let formData = new FormData();
+        formData.append("enabled", enabled);
+        formData.append("csrf_token", "{{.CSRFToken}}");
 
+        let ajax = new XMLHttpRequest();
+        ajax.responseType = "json";
+        ajax.open("POST", "/admin/preference/toggle-monitoring", true);
+        ajax.send(formData);
+        ajax.onreadystatechange = function() {
+            if (ajax.readyState === 4) {
+                let resp = ajax.response;
+                if (!resp.ok) {
+                    errorAlert("Error: " + resp.message);
+                }
+            }
+        }
     }
 </script>
