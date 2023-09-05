@@ -1,6 +1,11 @@
 package main
 
-import "log"
+import (
+	"fmt"
+	"log"
+	"strconv"
+	"time"
+)
 
 type job struct {
 	HostServiceID int
@@ -13,7 +18,6 @@ func (j *job) Run() {
 // startMonitoring starts the monitoring of the services
 func startMonitoring() {
 	if preferenceMap["monitoring_live"] == "1" {
-		log.Println("**************** Monitoring is already running ****************")
 		data := make(map[string]string)
 		data["message"] = "Monitoring is starting..."
 
@@ -28,21 +32,59 @@ func startMonitoring() {
 			log.Println(err)
 		}
 
-		log.Println("Length of services to monitor", len(servicesToMonitor))
+		// loop through the services
+		for _, x := range servicesToMonitor {
+			// get the schedule unit number
+			var sch string
+			if x.ScheduleUnit == "d" {
+				sch = fmt.Sprintf("@every %d%s", x.ScheduleNumber*24, "h")
+			} else {
+				sch = fmt.Sprintf("@every %d%s", x.ScheduleNumber, x.ScheduleUnit)
+			}
 
-		// range trhough the services and create a job for each one
-		for _, service := range servicesToMonitor {
-			log.Println("***** Service to monitor on", service.Hostname, "is", service.Service.ServiceName, "*****")
+			// create a job
+			var j job
+			j.HostServiceID = x.ID
+			scheduleID, err := app.Scheduler.AddJob(sch, &j)
+			if err != nil {
+				log.Println(err)
+			}
+
+			// save id job so start/stop it
+			app.MonitorMap[x.ID] = scheduleID
+
+			// broadcast over websockets the fact that the service is scheduled
+			payload := make(map[string]string)
+			payload["message"] = "scheduling"
+			payload["host_service_id"] = strconv.Itoa(x.ID)
+			yearOne := time.Date(0001, 11, 17, 20, 34, 58, 65138737, time.UTC)
+
+			if app.Scheduler.Entry(app.MonitorMap[x.ID]).Next.After(yearOne) {
+				data["next_run"] = app.Scheduler.Entry(app.MonitorMap[x.ID]).Next.Format("2006-01-02 15:04:05")
+			} else {
+				data["next_run"] = "Pending..."
+			}
+
+			payload["host"] = x.Hostname
+			payload["service"] = x.Service.ServiceName
+			if x.LastCheck.After(yearOne) {
+				payload["last_run"] = x.LastCheck.Format("2006-01-02 15:04:05")
+			} else {
+				payload["last_run"] = "Pending..."
+			}
+
+			payload["schedule"] = fmt.Sprintf("@every %d%s", x.ScheduleNumber, x.ScheduleUnit)
+
+			err = app.WsClient.Trigger("public-channel", "next-run-event", payload)
+			if err != nil {
+				log.Println(err)
+			}
+
+			err = app.WsClient.Trigger("public-channel", "schedule-changed-event", payload)
+			if err != nil {
+				log.Println(err)
+			}
 		}
 
-		// get the schedule unit number
-
-		// create a job
-
-		// save id job so start/stop it
-
-		// broadcast over websockets the fact that the service is scheduled
-
-		// end range
 	}
 }
