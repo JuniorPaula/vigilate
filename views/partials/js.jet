@@ -55,4 +55,23 @@
             }
         }
     });
+
+    document.getElementById("monitoring-live").addEventListener("change", function() {
+        let enabled = document.getElementById("monitoring-live").checked;
+        if (!enabled) {
+            attention.confirm({
+                html: "Are you sure you want to disable live monitoring?",
+                callback: function(result) {
+                    if (result) {
+                        // want to turn monitor off
+                        console.log("turning off");
+                    } else {
+                        document.getElementById("monitoring-live").checked = true;
+                    }
+                }
+            })
+        } else {
+
+        }
+    })
 </script>
