@@ -60,6 +60,9 @@ func routes() http.Handler {
 		// schedule
 		mux.Get("/schedule", handlers.Repo.ListEntries)
 
+		// Preferences
+		mux.Post("/preference/set-system-pref", handlers.Repo.SetSystemPreference)
+
 		// hosts
 		mux.Get("/host/all", handlers.Repo.AllHosts)
 		mux.Get("/host/{id}", handlers.Repo.Host)

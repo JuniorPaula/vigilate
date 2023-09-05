@@ -65,13 +65,42 @@
                     if (result) {
                         // want to turn monitor off
                         console.log("turning off");
+                        updateSystemPref("monitoring_live", "0");
+                        toggleMonitoring(0);
                     } else {
                         document.getElementById("monitoring-live").checked = true;
                     }
                 }
             })
         } else {
-
+            // want to turn monitor on
+            console.log("turning on");
+            updateSystemPref("monitoring_live", "1");
+            toggleMonitoring(1);
         }
-    })
+    });
+
+    function updateSystemPref(prefName, prefValue) {
+        let formData = new FormData();
+        formData.append("pref_name", prefName);
+        formData.append("pref_value", prefValue);
+        formData.append("csrf_token", "{{.CSRFToken}}");
+
+        let ajax = new XMLHttpRequest();
+        ajax.responseType = "json";
+        ajax.open("POST", "/admin/preference/set-system-pref", true);
+        ajax.send(formData);
+        ajax.onreadystatechange = function() {
+            if (ajax.readyState === 4) {
+                let resp = ajax.response;
+                if (!resp.ok) {
+                    errorAlert("Error: " + resp.message);
+                }
+            }
+        }
+    }
+
+    function toggleMonitoring(enabled) {
+
+    }
 </script>

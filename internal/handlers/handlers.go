@@ -257,6 +257,20 @@ func (repo *DBRepo) ToggleServiceForHost(w http.ResponseWriter, r *http.Request)
 	_, _ = w.Write(out)
 }
 
+func (repo *DBRepo) SetSystemPreference(w http.ResponseWriter, r *http.Request) {
+	var resp JSONResponse
+	resp.OK = true
+	resp.Message = ""
+
+	out, err := json.MarshalIndent(resp, "", "    ")
+	if err != nil {
+		log.Println(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_, _ = w.Write(out)
+}
+
 // AllUsers lists all admin users
 func (repo *DBRepo) AllUsers(w http.ResponseWriter, r *http.Request) {
 	vars := make(jet.VarMap)
