@@ -20,6 +20,10 @@
         warningAlert(data.message);
     });
 
+    publicChannel.bind('host-service-status-changed', function(data) {
+        successAlert(data.message);
+    });
+
     let attention = Prompt();
 
     {{if .Flash != ""}}
