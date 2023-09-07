@@ -21,7 +21,51 @@
     });
 
     publicChannel.bind('host-service-status-changed', function(data) {
-        successAlert(data.message);
+        attention.toast({
+            msg: data.message,
+            icon: "info",
+            timer: 30000,
+            showCloseButton: true,
+        });
+
+        // remove existing table row if exists
+        let exists = !!document.getElementById("host-service-" + data.host_service_id);
+        if (exists) {
+            console.log("removing row");
+            let row = document.getElementById("host-service-" + data.host_service_id);
+            row.parentNode.removeChild(row);
+        }
+
+        // update table if exists
+        let tableExists = !!document.getElementById(data.status + "-table");
+        if (tableExists) {
+            console.log("updating table");
+            let tableRef = document.getElementById(data.status + "-table");
+            let newRow = tableRef.tBodies[0].insertRow(-1);
+
+            newRow.setAttribute("id", "host-service-" + data.host_service_id);
+
+            // insert the first td
+            let newCell = newRow.insertCell(0);
+            newCell.innerHTML = `
+                <span class="${data.icon}"></span>
+                ${data.service_name}
+                <span class="badge bg-info ml-2" style="cursor: pointer;" onclick="checkNow(${data.host_service_id}, '${data.status}')">
+                    Check now
+                </span>
+            `;
+
+            // insert the second td
+            newCell = newRow.insertCell(1);
+            if (data.status !== "pending") {
+               newCell.innerHTML =  `${data.last_check}`
+            } else {
+                newCell.innerHTML = "pending";
+            }
+
+            // insert the third td
+            newCell = newRow.insertCell(2);
+        }
     });
 
     publicChannel.bind('host-service-counts-changed', function(data) {
