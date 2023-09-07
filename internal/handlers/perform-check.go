@@ -52,45 +52,35 @@ func (repo *DBRepo) ScheduledCheck(hostServiceID int) {
 	// tests the services
 	newStatus, msg := repo.testServiceForHost(h, hs)
 
-	hostServiceStatusChanged := false
 	if newStatus != hs.Status {
-		hostServiceStatusChanged = true
+		repo.updateHostServiceStatusCount(h, hs, newStatus, msg)
 	}
 
-	// broadcast service status change to pusher
-	if hostServiceStatusChanged {
-		data := make(map[string]string)
-		data["message"] = fmt.Sprintf("host service %s on %s has changed to %s", hs.Service.ServiceName, h.Hostname, newStatus)
+}
 
-		repo.broadcastMessage("public-channel", "host-service-status-changed", data)
-		// send email or sms if status has changed
-
-	}
-
+func (repo *DBRepo) updateHostServiceStatusCount(h models.Host, hs models.HostService, newStatus, msg string) {
 	// update host service record in database with status if changed and last check
 	hs.Status = newStatus
 	hs.LastCheck = time.Now()
-	err = repo.DB.UpdateHostService(hs)
+	err := repo.DB.UpdateHostService(hs)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	if hostServiceStatusChanged {
-		pending, healthy, warning, problem, err := repo.DB.GetAllServiceStatusCount()
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		data := make(map[string]string)
-		data["healthy_count"] = strconv.Itoa(healthy)
-		data["pending_count"] = strconv.Itoa(pending)
-		data["warning_count"] = strconv.Itoa(warning)
-		data["problem_count"] = strconv.Itoa(problem)
-
-		repo.broadcastMessage("public-channel", "host-service-counts-changed", data)
+	pending, healthy, warning, problem, err := repo.DB.GetAllServiceStatusCount()
+	if err != nil {
+		log.Println(err)
+		return
 	}
+
+	data := make(map[string]string)
+	data["healthy_count"] = strconv.Itoa(healthy)
+	data["pending_count"] = strconv.Itoa(pending)
+	data["warning_count"] = strconv.Itoa(warning)
+	data["problem_count"] = strconv.Itoa(problem)
+
+	repo.broadcastMessage("public-channel", "host-service-counts-changed", data)
 
 	log.Println("***** new status is", newStatus)
 	log.Println("***** message is", msg)
@@ -179,7 +169,7 @@ func (repo *DBRepo) testServiceForHost(h models.Host, hs models.HostService) (st
 		msg, newStatus = testHTTPForHost(h.URL)
 
 	}
-
+	// TODO - broadcast to client
 	return newStatus, msg
 }
 
