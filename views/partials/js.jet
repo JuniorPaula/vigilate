@@ -66,6 +66,7 @@
             // insert the third td
             newCell = newRow.insertCell(2);
         }
+        window.location.reload();
     });
 
     publicChannel.bind('host-service-counts-changed', function(data) {
