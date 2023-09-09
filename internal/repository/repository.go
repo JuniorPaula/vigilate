@@ -34,4 +34,6 @@ type DatabaseRepo interface {
 	UpdateHostService(hs models.HostService) error
 	GetServicesToMonitor() ([]models.HostService, error)
 	GetHostServiceByHostIDServiceID(hostID, serviceID int) (models.HostService, error)
+	InsertEvent(e models.Events) error
+	GetAllEvents() ([]models.Events, error)
 }

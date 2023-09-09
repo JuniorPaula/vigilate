@@ -119,6 +119,21 @@ func (repo *DBRepo) PerformCheck(w http.ResponseWriter, r *http.Request) {
 	// test the service
 	newStatus, msg := repo.testServiceForHost(host, hs)
 
+	// save event to database
+	err = repo.DB.InsertEvent(models.Events{
+		EventType:     newStatus,
+		HostServiceID: hs.ID,
+		HostID:        hs.HostID,
+		ServiceName:   hs.Service.ServiceName,
+		Hostname:      hs.Hostname,
+		Message:       msg,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+	})
+	if err != nil {
+		log.Println(err)
+	}
+
 	// broadcast service status change to pusher
 	if newStatus != hs.Status {
 		repo.pushStatusChangedEvent(host, hs, newStatus)
@@ -175,6 +190,21 @@ func (repo *DBRepo) testServiceForHost(h models.Host, hs models.HostService) (st
 	// broadcast to client
 	if hs.Status != newStatus {
 		repo.pushStatusChangedEvent(h, hs, newStatus)
+
+		// save event to database
+		err := repo.DB.InsertEvent(models.Events{
+			EventType:     newStatus,
+			HostServiceID: hs.ID,
+			HostID:        hs.HostID,
+			ServiceName:   hs.Service.ServiceName,
+			Hostname:      hs.Hostname,
+			Message:       msg,
+			CreatedAt:     time.Now(),
+			UpdatedAt:     time.Now(),
+		})
+		if err != nil {
+			log.Println(err)
+		}
 	}
 
 	repo.pushScheduleChangedEvent(hs, newStatus)
