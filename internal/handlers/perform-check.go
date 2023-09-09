@@ -61,6 +61,7 @@ func (repo *DBRepo) ScheduledCheck(hostServiceID int) {
 func (repo *DBRepo) updateHostServiceStatusCount(h models.Host, hs models.HostService, newStatus, msg string) {
 	// update host service record in database with status if changed and last check
 	hs.Status = newStatus
+	hs.LastMessage = msg
 	hs.LastCheck = time.Now()
 	err := repo.DB.UpdateHostService(hs)
 	if err != nil {
@@ -141,6 +142,7 @@ func (repo *DBRepo) PerformCheck(w http.ResponseWriter, r *http.Request) {
 
 	// update the host service in database if status has changed and last check
 	hs.Status = newStatus
+	hs.LastMessage = msg
 	hs.LastCheck = time.Now()
 	hs.UpdatedAt = time.Now()
 

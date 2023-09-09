@@ -46,7 +46,9 @@
                                 <td>
                                     <span class="badge bg-warning">{{.Status}}</span>
                                 </td>
-                                <td>No Messsage</td>
+                                <td>
+                                    {{.LastMessage}}
+                                </td>
                             </tr>
                         {{end}}
                         
