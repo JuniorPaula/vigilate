@@ -35,12 +35,29 @@ func (m *postgresDBRepo) InsertHost(h models.Host) (int, error) {
 	}
 
 	// add host services and set to inactive
-	stmt := `insert into host_services (host_id, service_id, active, schedule_number, schedule_unit, status, created_at, updated_at) values ($1, 1, 0, 3, 'm', 'pending', $2, $3)`
-
-	_, err = m.DB.ExecContext(ctx, stmt, newID, time.Now(), time.Now())
+	query = `select id from services`
+	serviceRows, err := m.DB.QueryContext(ctx, query)
 	if err != nil {
 		log.Println(err)
-		return newID, err
+		return 0, err
+	}
+	defer serviceRows.Close()
+
+	for serviceRows.Next() {
+		var serviceID int
+		err = serviceRows.Scan(&serviceID)
+		if err != nil {
+			log.Println(err)
+			return 0, err
+		}
+
+		stmt := `insert into host_services (host_id, service_id, active, schedule_number, schedule_unit, status, created_at, updated_at) values ($1, $2, 0, 3, 'm', 'pending', $3, $4)`
+
+		_, err = m.DB.ExecContext(ctx, stmt, newID, serviceID, time.Now(), time.Now())
+		if err != nil {
+			log.Println(err)
+			return newID, err
+		}
 	}
 
 	return newID, nil
@@ -116,7 +133,6 @@ func (m *postgresDBRepo) GetHostByID(id int) (models.Host, error) {
 	}
 
 	h.HostServices = hostServices
-
 	return h, nil
 }
 

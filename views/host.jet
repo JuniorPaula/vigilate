@@ -179,7 +179,7 @@ Host
                                     </thead>
                                     <tbody>
                                         {{range host.HostServices}}
-                                            {{if .Status == "healthy"}}
+                                            {{if .Status == "healthy" && .Active == 1}}
                                                 <tr id="host-service-{{.ID}}">
                                                     <td>
                                                         <span class="{{.Service.Icon}}"></span>
@@ -197,10 +197,6 @@ Host
                                                     </td>
                                                     <td></td>
                                                 <tr>
-                                            {{else}}
-                                                <tr>
-                                                    <td colspan="3" class="text-center">No Healthy Services</td>
-                                                </tr>
                                             {{end}}
                                         {{end}}
                                     </tbody>
@@ -224,7 +220,7 @@ Host
                                     </thead>
                                     <tbody>
                                         {{range host.HostServices}}
-                                            {{if .Status == "warning"}}
+                                            {{if .Status == "warning" && .Active == 1}}
                                                 <tr id="host-service-{{.ID}}">
                                                     <td>
                                                         <span class="{{.Service.Icon}}"></span>
@@ -242,10 +238,6 @@ Host
                                                     </td>
                                                     <td></td>
                                                 <tr>
-                                            {{else}}
-                                                <tr>
-                                                    <td colspan="3" class="text-center">No Warning Services</td>
-                                                </tr>
                                             {{end}}
                                         {{end}}
                                     </tbody>
@@ -269,7 +261,7 @@ Host
                                     </thead>
                                     <tbody>
                                         {{range host.HostServices}}
-                                            {{if .Status == "problem"}}
+                                            {{if .Status == "problem" && .Active == 1}}
                                                 <tr id="host-service-{{.ID}}">
                                                     <td>
                                                         <span class="{{.Service.Icon}}"></span>
@@ -287,10 +279,6 @@ Host
                                                     </td>
                                                     <td></td>
                                                 <tr>
-                                            {{else}}
-                                                <tr>
-                                                    <td colspan="3" class="text-center">No Problem Services</td>
-                                                </tr>
                                             {{end}}
                                         {{end}}
                                     </tbody>
@@ -314,7 +302,7 @@ Host
                                     </thead>
                                     <tbody>
                                         {{range host.HostServices}}
-                                            {{if .Status == "pending"}}
+                                            {{if .Status == "pending" && .Active == 1}}
                                                 <tr id="host-service-{{.ID}}">
                                                     <td>
                                                         <span class="{{.Service.Icon}}"></span>
@@ -332,10 +320,6 @@ Host
                                                     </td>
                                                     <td></td>
                                                 <tr>
-                                            {{else}}
-                                                <tr>
-                                                    <td colspan="3" class="text-center">No Pending Services</td>
-                                                </tr>
                                             {{end}}
                                         {{end}}
                                     </tbody>
