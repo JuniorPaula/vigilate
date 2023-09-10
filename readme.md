@@ -1,8 +1,6 @@
 
 # Vigilate
 
-This is the source code for the second project in the Udemy course Working with Websockets in Go (Golang).
-
 A dead simple monitoring service, intended to replace things like Nagios.
 
 ## Build
@@ -52,7 +50,7 @@ Run with flags:
 
 ~~~
 ./vigilate \
--dbuser='tcs' \
+-dbuser='your_user' \
 -pusherHost='localhost' \
 -pusherPort='4001' \
 -pusherKey='123abc' \
@@ -64,7 +62,7 @@ Run with flags:
 ## All Flags
 
 ~~~~
-tcs@grendel vigilate-udemy % ./vigilate -help
+./vigilate -help
 Usage of ./vigilate:
   -db string
         database name (default "vigilate")
