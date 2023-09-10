@@ -187,8 +187,12 @@ func (repo *DBRepo) testServiceForHost(h models.Host, hs models.HostService) (st
 	switch hs.ServiceID {
 	case HTTP:
 		msg, newStatus = testHTTPForHost(h.URL)
+
 	case HTTPS:
 		msg, newStatus = testHTTPSForHost(h.URL)
+
+	case SSLCertificate:
+		msg, newStatus = testSSLCertificateForHost(h.URL)
 
 	}
 
@@ -292,6 +296,7 @@ func (repo *DBRepo) removeFromMonitorMap(hs models.HostService) {
 	}
 }
 
+// testHTTPForHost tests the HTTP service for a host
 func testHTTPForHost(url string) (string, string) {
 	if !strings.HasSuffix(url, "/") {
 		url = strings.TrimSuffix(url, "/")
@@ -325,6 +330,31 @@ func testHTTPSForHost(url string) (string, string) {
 		return fmt.Sprintf("%s - %s", url, "error connecting"), "problem"
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Sprintf("%s - %s", url, resp.Status), "problem"
+	}
+
+	return fmt.Sprintf("%s - %s", url, resp.Status), "healthy"
+}
+
+// testSSLCertificateForHost tests the SSL certificate for a host
+func testSSLCertificateForHost(url string) (string, string) {
+	if !strings.HasSuffix(url, "/") {
+		url = strings.TrimSuffix(url, "/")
+	}
+
+	url = strings.Replace(url, "http://", "https://", -1)
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return fmt.Sprintf("%s - %s", url, "error connecting"), "problem"
+	}
+	defer resp.Body.Close()
+
+	if resp.TLS == nil || len(resp.TLS.PeerCertificates) == 0 {
+		return fmt.Sprintf("%s - %s", url, "no certificate found"), "problem"
+	}
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Sprintf("%s - %s", url, resp.Status), "problem"
